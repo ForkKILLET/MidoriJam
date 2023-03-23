@@ -1,0 +1,24 @@
+{
+  "name": "midori-backend-workspace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json",
+    "start": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^8.2.1",
+    "fastify": "^4.15.0",
+    "mongodb": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node18-strictest-esm": "^1.0.1",
+    "@types/node": "^18.15.5"
+  }
+}

@@ -1,0 +1,97 @@
+<script setup lang="ts">
+import { inject, ref } from 'vue'
+import axios from 'axios'
+import Problem from '../Problem.vue'
+import { api } from '../../utils/api'
+import { kBookData } from '../../utils/data'
+import { getChineseCid, getId } from '../../utils/idProc'
+
+const pass = ref('')
+const msg = ref('')
+const state = ref<'error' | 'pending' | 'none'>('none')
+
+const bookData = inject(kBookData)!
+
+type Problem = {
+    cid: number
+    pid: string
+}
+type Report = {
+    problems: Problem[],
+    time: string
+}
+type Frequency = Record<string, {
+    count: number
+    cid: number
+    pid: string
+}>
+const reports = ref<Report[]>()
+const frequency = ref<Frequency>()
+
+const fetchReports = async () => {
+    try {
+        const { data } = await axios.post(api('/analyze'), {
+            pass: pass.value
+        })
+        reports.value = data.reports
+        const freq: Frequency = {}
+        reports.value!
+            .flatMap(x => x.problems)
+            .forEach(({ cid, pid }) => {
+                console.log(cid, pid)
+                const id = getId(cid, pid)
+                freq[id] ??= { count: 0, cid, pid }
+                freq[id].count ++
+            })
+        frequency.value = freq
+        state.value = data.state
+        msg.value = data.msg
+    }
+    catch (err) {
+        state.value = 'error'
+        msg.value = '网络错误'
+    }
+}
+</script>
+
+<template>
+    <div>
+        <h2>错题记录</h2>
+        密码 <input v-model="pass" type="password" />
+        <br />
+        <button @click="fetchReports">获取错题</button>
+        <span :class="[ 'msg', state ]">{{ msg }}</span>
+        <div class="reports" v-if="reports">
+            <h2>所有错题</h2>
+            <div v-for="{ count, cid, pid }, id of frequency">
+                <span class="report-count">{{ count }} 次</span>
+                <Problem :id="id" :problem="bookData[cid][pid]"></Problem>
+            </div>
+
+            <h2>所有提交</h2>
+            共 {{ reports.length }} 次
+            <div v-for="{ time, problems } of reports">
+                <span class="report-time">{{ new Date(time).toUTCString() }}</span>
+                <div v-for="{ cid, pid } of problems">
+                    <Problem :id="getChineseCid(cid + 1) + '/' + pid" :problem="bookData[cid][pid]"></Problem>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.reports {
+    text-align: left;
+    width: 80vw;
+}
+
+.report-time {
+    color: #888;
+}
+
+.report-count {
+    color: #eb1e77;
+    margin-right: .2em;
+}
+</style>
