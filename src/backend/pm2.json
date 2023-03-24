@@ -1,0 +1,12 @@
+{
+	"apps": [
+		{
+			"name": "midori",
+			"script": "src/index.js",
+			"watch": false,
+			"env": {
+				"PASS": "cz2024"
+			}
+		}
+	]
+}

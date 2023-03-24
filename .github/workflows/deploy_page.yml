@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: |
           pnpm i
-          pnpm build
+          VITE_BACKEND='https://be.icelava.top/midori' pnpm build
 
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v2
