@@ -1,1 +1,1 @@
-export const api = (path: string) => import.meta.env.VITE_BACKEND + path
+export const api = (path: string) => 'https://be.icelava.top/midori' + path
