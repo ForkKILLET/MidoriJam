@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 import axios from 'axios'
 import Problem from '../Problem.vue'
 import { api } from '../../utils/api'
@@ -20,11 +20,12 @@ type Report = {
     problems: Problem[],
     time: string
 }
-type Frequency = Record<string, {
+type Frequency = {
     count: number
+    id: string
     cid: number
     pid: string
-}>
+}[]
 const reports = ref<Report[]>()
 const frequency = ref<Frequency>()
 
@@ -34,16 +35,16 @@ const fetchReports = async () => {
             pass: pass.value
         })
         reports.value = data.reports
-        const freq: Frequency = {}
+        const freq: Record<string, Frequency[number]> = {}
         reports.value!
             .flatMap(x => x.problems)
             .forEach(({ cid, pid }) => {
                 console.log(cid, pid)
                 const id = getId(cid, pid)
-                freq[id] ??= { count: 0, cid, pid }
+                freq[id] ??= { count: 0, id, cid, pid }
                 freq[id].count ++
             })
-        frequency.value = freq
+        frequency.value = Object.values(freq).sort((a, b) => b.count - a.count)
         state.value = data.state
         msg.value = data.msg
     }
@@ -63,15 +64,16 @@ const fetchReports = async () => {
         <span :class="[ 'msg', state ]">{{ msg }}</span>
         <div class="reports" v-if="reports">
             <h2>所有错题</h2>
-            <div v-for="{ count, cid, pid }, id of frequency">
+            共 {{ frequency?.length }} 道
+            <div v-for="{ count, cid, pid, id } of frequency">
                 <span class="report-count">{{ count }} 次</span>
                 <Problem :id="id" :problem="bookData[cid][pid]"></Problem>
             </div>
 
             <h2>所有提交</h2>
             共 {{ reports.length }} 次
-            <div v-for="{ time, problems } of reports">
-                <span class="report-time">{{ new Date(time).toUTCString() }}</span>
+            <div class="report" v-for="{ time, problems } of reports">
+                在 <span class="report-time">{{ new Date(time).toUTCString() }}</span>，有 {{ problems.length }} 道
                 <div v-for="{ cid, pid } of problems">
                     <Problem :id="getChineseCid(cid + 1) + '/' + pid" :problem="bookData[cid][pid]"></Problem>
                 </div>
@@ -84,6 +86,10 @@ const fetchReports = async () => {
 .reports {
     text-align: left;
     width: 80vw;
+}
+
+.report {
+    margin-bottom: 2em;
 }
 
 .report-time {
