@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:build": "vue-tsc && vite build --outDir ../../dist",
     "build": "vue-tsc && vite build --outDir ../../dist --base /MidoriJam/",
     "preview": "vite preview --outDir ../../dist"
   },

@@ -139,12 +139,18 @@ const bookContainer = ref<HTMLDivElement | undefined>()
 .select-info {
     position: sticky;
     top: 0;
-    background: white;
+    background: #242424;
     text-align: left;
 }
 
 .select-info > h2:hover {
     text-decoration: underline;
     cursor: pointer;
+}
+
+@media (prefers-color-scheme: light) {
+    .select-info {
+        background-color: #fff;
+    }
 }
 </style>
