@@ -11,6 +11,8 @@ const dbclient = new MongoClient('mongodb://127.0.0.1:27017', {
 
 await dbclient.connect()
 
+console.log('[mongo] connected')
+
 const db = dbclient.db('midorijam')
 
 type Req = {
@@ -91,6 +93,15 @@ server.post<{ Body: AnalyzationReq, Reply: AnalyzationRep }>('/analyze', {
         msg: '获取成功',
         reports
     }
+})
+
+server.get('/', {
+	schema: {},
+}, async (_, rep) => {
+	rep.type('text/html')
+	return `
+		<p>Midori Jam Backend</p>
+	`.replace(/^\s+/gm, '')
 })
 
 server.listen({
